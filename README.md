@@ -7,3 +7,6 @@ A small virtual attraction controller (example: rollercoasters) that i made in H
 3. You can use the gates and haresses. You cant dispatch when there are open
 4. Close the Harnesses and Gates, then click dispatch. This will dispatch the train
 5. In case of emergency, press Estop and then reset
+
+# Why did i create this?
+Just for fun. Quick little experiment :D
