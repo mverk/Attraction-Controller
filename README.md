@@ -1,3 +1,5 @@
+<img src="[https://www.freeiconspng.com/uploads/discord-black-icon-1.png](https://primary.jwwb.nl/public/l/o/q/temp-tixxszvllhaqqpyikuaa/iqh6li/controller.png?enable-io=true&enable=upscale&width=980)" />
+
 # Attraction-Controller
 A small virtual attraction controller (example: rollercoasters) that i made in HTML, CSS and Javascript
 
