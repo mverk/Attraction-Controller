@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Attraction Controller | V3</title>
+
+    <style>
+        body {
+            background-color: rgb(34, 34, 34);
+        }
+        .button {
+            display: inline-block;
+            padding: 10px 20px;
+            margin: 10px;
+            font-size: 16px;
+            text-align: center;
+            text-decoration: none;
+            cursor: pointer;
+            border: none;
+            border-radius: 4px;
+        }
+
+        .button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .button.green {
+            background-color: green;
+            color: white;
+        }
+
+        .button.red {
+            background-color: red;
+            color: white;
+        }
+
+        .button.yellow {
+            background-color: yellow;
+            color: black;
+        }
+
+        .button.grey {
+            background-color: grey;
+            color: white;
+        }
+
+        .button.blue {
+            background-color: blue;
+            color: white;
+        }
+
+        h1 {
+            font-family: Arial, Helvetica, sans-serif;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <button id="button-power" class="button grey" onclick="ridePower()">Power</button>
+    <button id="button-estop" class="button red" onclick="EStop()" disabled>E-Stop</button>
+    <button id="button-reset" class="button" onclick="reset()" disabled>Reset</button>
+    <button id="button-acknowledge" class="button" onclick="acknowledge()" disabled>Acknowledge</button><br>
+    <button id="button-gate" class="button" onclick="gate()" disabled>Gates</button>
+    <button id="button-harnesses" class="button" onclick="harnesses()" disabled>Harnesses</button>
+    <button id="button-dispatch" class="button" onclick="dispatch()" disabled>Dispatch</button>
+    <button id="button-light" class="button">Status</button>
+    <br>
+    <h1 id="statusUpdate">System off. Click 'Power' to engage startup sequence</h1>
+</body>
+
+<script>
+    const statusUpdate = document.getElementById("statusUpdate");
+    let ridePowerOn = false;
+    let gatesOpen = false;
+    let harnessOpen = false;
+    document.getElementById("button-power").className = "button grey";
+    let powerThread;
+    function powerBlink() {
+        powerThread = setInterval(function() {
+            const powerButton = document.getElementById("button-power");
+            powerButton.className = powerButton.className === "button red" ? "button grey" : "button red";
+        }, 500);
+    }
+
+    powerBlink();
+    let acknowledgeThread;
+    function acknowledgeBlink() {
+        acknowledgeThread = setInterval(function() {
+            const acknowledgeButton = document.getElementById("button-acknowledge");
+            acknowledgeButton.className = acknowledgeButton.className === "button blue" ? "button" : "button blue";
+        }, 200)
+    }
+
+    let estopThread;
+    function estopBlink() {
+        estopThread = setInterval(function() {
+            const estopButton = document.getElementById("button-estop");
+            estopButton.className = estopButton.className === "button red" ? "button" : "button red";
+        }, 200)
+    }
+    function dispatchBlink() {
+            const dispatchButton = document.getElementById("button-light");
+            dispatchButton.className = "button green";
+    }
+
+    function dispatchedBlink() {
+            const dispatchButton = document.getElementById("button-light");
+            dispatchButton.className = "button yellow";
+    }
+
+    let gateThread;
+let gateButtonClass = "button";
+
+function gatesBlink() {
+    gateThread = setInterval(function() {
+        const gateButton = document.getElementById("button-gate");
+        gateButtonClass = gateButtonClass === "button yellow" ? "button grey" : "button yellow";
+        gateButton.className = gateButtonClass;
+    }, 500);
+}
+    let harnessThread;
+function harnessBlink() {
+    harnessThread = setInterval(function() {
+        const harnessButton = document.getElementById("button-harnesses");
+        harnessButton.className = harnessButton.className === "button yellow" ? "button grey" : "button yellow";
+    }, 500);
+}
+
+    function ridePower() {
+        const powerButton = document.getElementById("button-power");
+
+        if (ridePowerOn) {
+            reset();
+            ridePowerOn = false;
+        } else {
+            clearInterval(powerThread);
+            powerButton.className = "button red";
+            document.getElementById("button-acknowledge").disabled = false;
+            checkForDispatch();
+            acknowledgeBlink();
+            statusUpdate.innerHTML = "Power on, waiting for acknowledge."
+            ridePowerOn = true;
+        }
+    }
+
+    function acknowledge() {
+        clearInterval(acknowledgeThread);
+        document.getElementById("button-acknowledge").disabled = true;
+        document.getElementById("button-acknowledge").className = "button";
+
+        document.getElementById("button-gate").disabled = false;
+            document.getElementById("button-harnesses").disabled = false;
+            document.getElementById("button-dispatch").disabled = false;
+            document.getElementById("button-estop").disabled = false;
+            document.getElementById("button-reset").disabled = false;
+        checkForDispatch();
+        dispatchBlink();
+        statusUpdate.innerHTML = "System powered on. Waiting for commands";
+
+    }
+
+    function gate() {
+    const gateButton = document.getElementById("button-gate");
+    if (gatesOpen) {
+        gateButton.className = "button"
+        clearInterval(gateThread);
+        gatesOpen = false;
+    } else {
+        gatesBlink();
+        gatesOpen = true;
+    }
+}
+
+function harnesses() {
+    const harnessButton = document.getElementById("button-harnesses");
+    if (harnessOpen) {
+        clearInterval(harnessThread);
+        harnessButton.className = "button";
+        harnessOpen = false;
+    } else {
+        harnessBlink();
+        harnessOpen = true;
+    }
+}
+function checkForDispatch() {
+
+    dispatchThreadCheck = setInterval(function() {
+        if (harnessOpen === false && gatesOpen === false) {
+        dispatchBlink();
+        document.getElementById("button-dispatch").disabled = false;
+    } else if (harnessOpen === true || gatesOpen === true) {
+        document.getElementById("button-dispatch").disabled = true;
+        document.getElementById("button-light").className = "button red";
+    }
+    }, 500);
+
+
+}
+
+
+    function dispatch() {
+        if(harnessOpen === false && gatesOpen === false) {
+            dispatchedBlink();
+
+            statusUpdate.innerHTML = "Train dispatching from station";
+            document.getElementById("button-estop").disabled = true;
+            document.getElementById("button-reset").disabled = true;
+            document.getElementById("button-acknowledge").disabled = true;
+            document.getElementById("button-gate").disabled = true;
+            document.getElementById("button-harnesses").disabled = true;
+            document.getElementById("button-dispatch").disabled = true;
+            clearInterval(dispatchThreadCheck);
+            setTimeout(function() {
+                document.getElementById("button-estop").disabled = false;
+            document.getElementById("button-reset").disabled = false;
+            document.getElementById("button-acknowledge").disabled = false;
+            document.getElementById("button-gate").disabled = false;
+            document.getElementById("button-harnesses").disabled = false;
+            document.getElementById("button-dispatch").disabled = false;
+            checkForDispatch();
+            statusUpdate.innerHTML = "Next cart available";
+            }, 3000);
+        } else {
+            statusUpdate.innerHTML = "Gates and/or Harnesses are not closed, can not dispatch";
+        }
+    }
+
+    function reset() {
+        statusUpdate.innerHTML = "System turning off, please wait."
+        setTimeout(function() {
+            location.reload();
+        }, 3000);
+
+
+    }
+
+    function EStop() {
+        statusUpdate.innerHTML = "Emergency E-Stop Pressed. Please reset system"
+        document.getElementById("button-estop").disabled = true;
+            document.getElementById("button-acknowledge").disabled = true;
+            document.getElementById("button-gate").disabled = true;
+            document.getElementById("button-harnesses").disabled = true;
+            document.getElementById("button-dispatch").disabled = true;
+            clearInterval(dispatchThreadCheck);
+        estopBlink();
+    }
+</script>
+</html>
