@@ -10,5 +10,5 @@ A small virtual attraction controller (example: rollercoasters) that i made in H
 4. Close the Harnesses and Gates, then click dispatch. This will dispatch the train
 5. In case of emergency, press Estop and then reset
 
-# Why did i create this?
-Just for fun. Quick little experiment :D
+# Will this virtual controller keep receiving updates?
+No. I will unfortunatly stop working on this project. I might start working on an actual EXE/Game of the project, but for now I will keep it On Hold.
